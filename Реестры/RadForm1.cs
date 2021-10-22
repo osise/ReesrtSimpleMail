@@ -31,6 +31,7 @@ namespace Реестры
         DataRow row;
         string fio = "";
         string address = "";
+        string index = "";
         int cou = 0;
         StringBuilder sb = new StringBuilder();
         public RadForm1()
@@ -50,6 +51,7 @@ namespace Реестры
                 string datadocx = "";
                 fio = "";
                 address = "";
+                index = "";
                 // Open a WordprocessingDocument for editing using the filepath.
                 WordprocessingDocument wordprocessingDocument =
                 WordprocessingDocument.Open(filename, false);
@@ -64,8 +66,7 @@ namespace Реестры
                     radRichTextEditor1.Text += "Не могу найти данные в документе. Убедитесь, что содержание документа не изменилось" + "\n";
                     sb.Append(DateTime.Now + ": Не могу найти данные в документе. Убедитесь, что содержание документа не изменилось\r\n");
                 }
-               
-
+                
                 RegexOptions options = RegexOptions.None;
                 Regex regex = new Regex("[ ]{2,}", options); //Убираем все множественные пробелы и прочие символы
                 datadocx = regex.Replace(datadocx, " ");
@@ -75,15 +76,18 @@ namespace Реестры
                     fio = m.Value;
                 }
                 address = datadocx.Substring(fio.Length).TrimStart(' '); //Убрать пробел спереди
+                index = address.Substring(address.Length - 6);
+                address = address.Substring(0, address.Length - 8);
 
                 row = addr.NewRow();
                 row["fio"] = fio;
                 row["addr"] = address;
+                row["index"] = index;
                 addr.Rows.Add(row);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                //MessageBox.Show(ex.ToString());
 
             }
         }
@@ -108,8 +112,10 @@ namespace Реестры
 
                     for (int i = 0; i < addr.Rows.Count; i++)
                     {
-                        worksheet.Cells[i+2, 1].Value = addr.Rows[i].ItemArray[0];
-                        worksheet.Cells[i+2, 2].Value = addr.Rows[i].ItemArray[1];
+                        worksheet.Cells[i + 2, 1].Value = addr.Rows[i].ItemArray[1];
+                        worksheet.Cells[i + 2, 2].Value = addr.Rows[i].ItemArray[0];
+                        worksheet.Cells[i + 2, 10].Value = addr.Rows[i].ItemArray[2];
+
                     }
                     //add some data
                     
@@ -130,7 +136,7 @@ namespace Реестры
         {
             try
             {
-                ExcelFilePathXLS = "";
+               
                 radRichTextEditor1.Text += "\n";
                 sourcefile = "";
                 sb.Append("\r\n");
@@ -159,16 +165,16 @@ namespace Реестры
                             }
                             else
                             {
-                                radButton5.Enabled = false;
+                               // radButton5.Enabled = false;
                                 radRichTextEditor1.Text += "\n";
                                 radRichTextEditor1.Text += "Выберите непустую папку с файлами\n";
                             }  
                         }
                         else
                         {
-                            radButton5.Enabled = false;
+                           // radButton5.Enabled = false;
                             radRichTextEditor1.Text += "\n";
-                            radRichTextEditor1.Text += "Не выбрана папка с файлами и не выбран файл реестра\n";
+                            radRichTextEditor1.Text += "Не выбрана папка с файлами или не выбран файл реестра\n";
                         }
                     }
                     else if (Ext1 == ".xls")
@@ -182,7 +188,7 @@ namespace Реестры
                         sb.Append(DateTime.Now + ": Не удалось открыть файл. Это не файл MS Excel!\r\n");
                     }
                 }
-                File.AppendAllText(@"C:\Sort-MIV\\log.txt", sb.ToString());
+                File.AppendAllText(@"C:\log.txt", sb.ToString());
                 sb.Clear();
             }
             catch (Exception ex)
@@ -221,11 +227,11 @@ namespace Реестры
                 sb.Append("\r\n");
                 sb.Append(DateTime.Now + ": Выполнено!\r\n");
             }
-            radRichTextEditor1.Text += "Обработано записей в файле: " + addr.Rows.Count + "\n";
-            sb.Append(DateTime.Now + ": Обработано записей в файле: " + addr.Rows.Count + "\r\n");
+            radRichTextEditor1.Text += "Сохранено записей в файл: " + cou + "\n";
+            sb.Append(DateTime.Now + ": Сохранено записей в файл: " + cou + "\r\n");
 
 
-            File.AppendAllText(@"C:\Sort-MIV\log.txt", sb.ToString());
+            File.AppendAllText(@"C:\log.txt", sb.ToString());
             sb.Clear();
         }  //Отмена
         private void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -238,7 +244,7 @@ namespace Реестры
         {
             try
             {
-                ExcelFilePathFOL = "";
+                
                 sb.Append("\r\n");
                 sb.Append("\r\n");
                 sb.Append("------------------------ " + DateTime.Now + " ------------------------\r\n");
@@ -255,19 +261,28 @@ namespace Реестры
                     radRichTextEditor1.Text += "Обнаружено файлов docx в папке: " + ourfiles.Count() + "\n";
                     sb.Append(DateTime.Now + ": Обнаружено файлов docx в папке: " + ourfiles.Count() + "\r\n");
 
-                    if (ourfiles.Length > 0 || ExcelFilePathXLS != "")
+                    if (ExcelFilePathFOL != "" && ExcelFilePathXLS != "")
                     {
-                        radButton5.Enabled = true;
-                        radRichTextEditor1.Text += "Нажмите кнопку Начать\n";
+                        if (ourfiles.Length > 0)
+                        {
+                            radButton5.Enabled = true;
+                            radRichTextEditor1.Text += "Нажмите кнопку Начать\n";
+                        }
+                        else
+                        {
+                           // radButton5.Enabled = false;
+                            radRichTextEditor1.Text += "\n";
+                            radRichTextEditor1.Text += "Выберите непустую папку с файлами\n";
+                        }
                     }
                     else
                     {
-                        radButton5.Enabled = false;
+                       // radButton5.Enabled = false;
                         radRichTextEditor1.Text += "\n";
-                        radRichTextEditor1.Text += "Выберите непустую папку с файлами\n";
+                        radRichTextEditor1.Text += "Не выбрана папка с файлами или не выбран файл реестра\n";
                     }
                 }
-                File.AppendAllText(@"C:\Sort-MIV\\log.txt", sb.ToString());
+                File.AppendAllText(@"C:\log.txt", sb.ToString());
                 sb.Clear();
             }
             catch (Exception ex)
@@ -293,6 +308,11 @@ namespace Реестры
                 column.ColumnName = "addr";
                 addr.Columns.Add(column);
 
+                column = new DataColumn();
+                column.DataType = Type.GetType("System.String");
+                column.ColumnName = "index";
+                addr.Columns.Add(column);
+
 
                 for (int y = 0; y < ourfiles.Length; y++)
                 {
@@ -307,20 +327,20 @@ namespace Реестры
                         OpenDocX(ourfiles[y], y);
                         worker.ReportProgress(percentage);
                     }
-                    File.AppendAllText(@"C:\Sort-MIV\log.txt", sb.ToString());
+                    File.AppendAllText(@"C:\log.txt", sb.ToString());
                     sb.Clear();
                 }
                 AddDataToReestr(ExcelFilePathXLS);
-
-                radRichTextEditor1.Text += "\n";
-                radRichTextEditor1.Text += "Работа завершена\n";
-
-                radButton5.Enabled = false;
-
-                radRichTextEditor1.Text += "\n";
-                radRichTextEditor1.Text += "Для повторной работы снова выберите файлы\n";
-
+                cou = addr.Rows.Count;
+                addr.Clear();
+                addr.Columns.Remove("fio");
+                addr.Columns.Remove("addr");
+                addr.Columns.Remove("index");
                 addr.Dispose();
+                ExcelFilePathFOL = "";
+                ExcelFilePathXLS = "";
+
+
             }
             catch (Exception ex)
             {
@@ -334,6 +354,8 @@ namespace Реестры
             {
                 bw.RunWorkerAsync();
             }
+
+            radButton5.Enabled = false;
         }
 
         private void radButton6_Click(object sender, EventArgs e)
@@ -346,7 +368,7 @@ namespace Реестры
 
         private void RadForm1_Load(object sender, EventArgs e)
         {
-            radButton5.Enabled = false;
+           // radButton5.Enabled = false;
             radRichTextEditor1.Text += "1) Выберите папку с файлами для заполнения реестра"  + "\n";
             radRichTextEditor1.Text += "2) Выберите файл реестра в формате .xlsx"  + "\n";
             radRichTextEditor1.Text += "3) Нажмите кнопку Начать" + "\n";

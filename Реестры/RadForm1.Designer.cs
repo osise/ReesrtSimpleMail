@@ -71,6 +71,7 @@ namespace Реестры
             // 
             // radButton5
             // 
+            this.radButton5.Enabled = false;
             this.radButton5.Font = new System.Drawing.Font("Maiandra GD", 12F);
             this.radButton5.Location = new System.Drawing.Point(12, 153);
             this.radButton5.Name = "radButton5";
@@ -140,7 +141,7 @@ namespace Реестры
             // 
             // 
             this.RootElement.ApplyShapeToControl = true;
-            this.Text = "     Формирование реестров простых писем v0.9";
+            this.Text = "     Формирование реестров простых писем v0.97";
             this.ThemeName = "Fluent";
             this.Load += new System.EventHandler(this.RadForm1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.radRichTextEditor1)).EndInit();
